@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>modal</title>
+    <link rel="stylesheet" href="css/modal.css">
+</head>
+<body>
+<button id="Btn">show modal</button>
+
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/modal.js"></script>
+     <script>
+        document.getElementById('Btn').onclick = function () {
+            var a = new Modal({
+                title:"Modal title",
+                content:"hello World"
+            },function () {
+                console.log('你点击了保存按钮');
+            },function () {
+                console.log('你点击了取消按钮');
+            });
+        }
+
+    </script>
+</body>
+</html>
+
+
