@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>slide</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        html,body{
+            width: 100%;
+            height: 100%;
+        }
+        ul{
+            list-style: none;
+        }
+        .clearfix:after{
+            content: '';
+            display: block;
+            clear: both;
+            visibility: hidden;
+            height: 0;
+            font-size: 0;
+            line-height: 0;
+        }
+        #wrap{
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        #list{
+            left: 0;
+            overflow: hidden;
+        }
+        .item{
+            float: left;
+        }
+        .item img{
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+        .nav{
+            position: absolute;
+            left: 50%;
+            margin-left: -45px;
+            bottom: 10px;
+        }
+        .nav .active{
+            background-color: #fff;
+        }
+        .nav a{
+            display:block;
+            float: left;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ccc;
+        }
+        .nav a:not(:last-child){
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrap">
+        <ul id="list" style="transform: translateX(0);">
+            <li class="item">
+                <img src="https://img.alicdn.com/imgextra/i1/142/TB2Me.ebbgjyKJjy0FbXXaCtXXa_!!142-0-luban.jpg_q50.jpg" alt="">
+            </li>
+            <li class="item">
+                <img src="https://aecpm.alicdn.com/simba/img/TB1CWf9KpXXXXbuXpXXSutbFXXX.jpg_q50.jpg" alt="">
+            </li>
+            <li class="item">
+                <img src="https://gw.alicdn.com/imgextra/i2/14/TB22jxXbo.jyKJjy0FpXXX2wVXa_!!14-0-luban.jpg_q50.jpg" alt="">
+            </li>
+            <li class="item">
+                <img src="https://aecpm.alicdn.com/simba/img/TB14ab1KpXXXXclXFXXSutbFXXX.jpg_q50.jpg" alt="">
+            </li>
+            <li class="item">
+                <img src="https://gw.alicdn.com/imgextra/i4/169/TB28DZZbJAmyKJjSZFGXXb.fFXa_!!169-0-luban.jpg_q50.jpg" alt="">
+            </li>
+        </ul>
+        <div class="nav clearfix" id="nav">
+            <a href="javascript:;" class="active"></a>
+            <a href="javascript:;"></a>
+            <a href="javascript:;"></a>
+            <a href="javascript:;"></a>
+            <a href="javascript:;"></a>
+        </div>
+    </div>
+    <script>
+        window.onload = function(){
+            var startPoint = 0;
+            var startEle = 0;
+
+            var wrap = document.querySelector('#wrap');
+            var list = document.querySelector('#list');
+            list.innerHTML += list.innerHTML;//复制一份
+            var li = document.querySelectorAll('.item');
+            var wrapWidth = wrap.offsetWidth;
+            var itemLength = li.length;
+            var navItem = document.querySelectorAll("#nav a");
+            var nowIndex = 0;
+            var timer = null;
+
+            wrap.style.height = li[0].offsetHeight;
+            for(var i = 0;i<li.length;i++){
+                li[i].style.width = 1/itemLength*100+'%';
+            }
+            list.style.width = itemLength+'00%';
+
+            wrap.addEventListener('touchstart',function(e){
+                clearInterval(timer);
+                list.style.transition = 'none';
+                nowIndex = -Math.round(cssTransform(list,'translateX')/wrapWidth);
+                
+                if (nowIndex == 0) {
+                    nowIndex = navItem.length;
+                }
+                if (nowIndex == itemLength-1) {
+                    nowIndex = navItem.length-1;
+                }
+                cssTransform(list,'translateX',-nowIndex*wrapWidth);
+                var touch = e.changedTouches[0];
+                startPoint = touch.pageX;
+                startEle = cssTransform(list,'translateX');
+            },false);
+            wrap.addEventListener('touchmove',function(e){
+                var touch = e.changedTouches[0];
+                var nowPoint = touch.pageX;
+                var dis = nowPoint - startPoint;//元素移动的距离
+                var translatex = startEle + dis;
+                cssTransform(list,'translateX',translatex)
+            },false);
+            wrap.addEventListener('touchend',function(e){
+                auto();
+                nowIndex = -Math.round(cssTransform(list,'translateX')/wrapWidth);
+                if (nowIndex<0) {
+                    nowIndex = 0;
+                }
+                if (nowIndex>itemLength-1) {
+                    nowIndex = itemLength-1;
+                }
+                tab();
+            },false);
+
+            function auto(){
+                clearInterval(timer);
+                timer = setInterval(function(){
+                    if (nowIndex == itemLength-1) {
+                        nowIndex = navItem.length-1;
+                    }
+                    list.style.transition = 'none';
+                    cssTransform(list,'translateX',-nowIndex*wrapWidth);
+                    setTimeout(function(){
+                        nowIndex++;
+                        tab();
+                    },30)
+                    
+                },3000)
+            }
+            function tab(){
+                list.style.transition = '.5s';
+                cssTransform(list,'translateX',-nowIndex*wrapWidth);
+                for(var i = 0;i<navItem.length;i++){
+                    navItem[i].className = '';//全部导航索引恢复默认灰色
+                }
+                navItem[nowIndex%navItem.length].className = 'active';//当前的导航设置为白色
+            }
+            auto();
+
+            
+        }
+        //el:需要获取或设置transform值的元素
+        //attr:获取或设置的transform的属性
+        //val:设置的transform的属性值
+        function cssTransform(el,attr,val){
+            if(!el.tranform){//判断只在无el.tranform属性时新创建el.tranform
+                el.tranform={}//为元素el设置一个属性，为一个空对象
+            }
+            if(arguments.length>2){//判断是否有传入val，有则执行封装函数设置transform值的功能
+                el.tranform[attr]=val;
+                var sVal="";//用于储存多个transform值
+
+                for( var attrs in el.tranform ){
+                    switch(attrs){
+                        case "rotate":
+                        case "rotateX":
+                        case "rotateY":
+                        case "rotateZ":
+                        case "rotate":
+                        case "skewX":
+                        case "skewY":
+                            sVal+=attrs+"("+el.tranform[attrs]+"deg) ";//注意此处的空格要加上
+                        break;
+
+                        case "translateX":
+                        case "translateY":
+                        case "translateZ":
+                            sVal+=attrs+"("+el.tranform[attrs]+"px) ";//注意单位的变化
+                        break;
+
+                        case "scale":
+                        case "scaleX":
+                        case "scaleY":
+                            sVal+=attrs+"("+el.tranform[attrs]+") ";//注意单位的变化
+                        break;
+                    }
+                }
+                el.style.webkitTransform=el.style.transform=sVal;
+            }else{//判断是否有传入val，无则执行封装函数获取transform值的功能
+                var val=el.tranform[attr];//获取由该函数设置的transform值的元素的获取transform值
+                if(typeof val == "undefined"){//如果想要获取默认值的话
+                    if(attr=="scale" || attr=="scaleX" || attr=="scaleY"){
+                        val=1;
+                    }else{
+                        val=0;
+                    }
+                }
+                return val;
+            }
+
+        }
+
+    </script>
+</body>
+</html>
